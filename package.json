@@ -27,6 +27,9 @@
   "bugs": {
     "url": "https://github.com/arqex/freezer/issues"
   },
+  "overrides": {
+    "graceful-fs": "^4.2.10"
+  },
   "devDependencies": {
     "benchmark": "~1.0.0",
     "chai": "~2.0.0",
