@@ -1,200 +1,221 @@
-'use strict';
+"use strict";
 
-var Utils = require( './utils.js' );
+var Utils = require("./utils.js");
 
 //#build
 var nodeCreator = {
-	init: function( Frozen ){
+  init: function (Frozen) {
+    var commonMethods = {
+      set: function (attr, value) {
+        var attrs = attr,
+          update = this.__.trans,
+          isArray = this.constructor === Array,
+          msg = "Freezer arrays only accept numeric attributes, given: ";
+        if (typeof attr !== "object") {
+          if (isArray && parseInt(attr) != attr) {
+            Utils.warn(0, msg + attr);
+            return Utils.findPivot(this) || this;
+          }
+          attrs = {};
+          attrs[attr] = value;
+        }
 
-		var commonMethods = {
-			set: function( attr, value ){
-				var attrs = attr,
-					update = this.__.trans,
-					isArray = this.constructor === Array,
-					msg = 'Freezer arrays only accept numeric attributes, given: '
-				;
+        if (!update) {
+          for (var key in attrs) {
+            if (isArray && parseInt(key) != key) {
+              Utils.warn(0, msg + key);
+              return Utils.findPivot(this) || this;
+            } else {
+              update = update || this[key] !== attrs[key];
+            }
+          }
 
-				if( typeof attr !== 'object' ){
-					if( isArray && parseInt(attr) != attr ){
-						Utils.warn( 0, msg + attr );
-						return Utils.findPivot( this ) || this;
-					}
-					attrs = {};
-					attrs[ attr ] = value;
-				}
+          // No changes, just return the node
+          if (!update) return Utils.findPivot(this) || this;
+        }
 
-				if( !update ){
-					for( var key in attrs ){
-						if( isArray && parseInt(key) != key ){
-							Utils.warn( 0, msg + key );
-							return Utils.findPivot( this ) || this;
-						}
-						else {
-							update = update || this[ key ] !== attrs[ key ];
-						}
-					}
+        var name = isArray ? "array.set" : "object.set";
+        return this.__.store.notify("merge", this, attrs, name);
+      },
 
-					// No changes, just return the node
-					if( !update )
-						return Utils.findPivot( this ) || this;
-				}
+      reset: function (attrs) {
+        return this.__.store.notify("replace", this, attrs, "object.replace");
+      },
 
-				var name = isArray ? 'array.set' : 'object.set';
-				return this.__.store.notify( 'merge', this, attrs, name );
-			},
+      getListener: function () {
+        return Frozen.createListener(this);
+      },
 
-			reset: function( attrs ) {
-				return this.__.store.notify( 'replace', this, attrs, 'object.replace' );
-			},
+      toJS: function () {
+        var js;
+        if (this.constructor === Array) {
+          js = new Array(this.length);
+        } else {
+          js = {};
+        }
 
-			getListener: function(){
-				return Frozen.createListener( this );
-			},
+        Utils.each(this, function (child, i) {
+          if (child && child.__) js[i] = child.toJS();
+          else js[i] = child;
+        });
 
-			toJS: function(){
-				var js;
-				if( this.constructor === Array ){
-					js = new Array( this.length );
-				}
-				else {
-					js = {};
-				}
+        return js;
+      },
 
-				Utils.each( this, function( child, i ){
-					if( child && child.__ )
-						js[ i ] = child.toJS();
-					else
-						js[ i ] = child;
-				});
+      transact: function () {
+        return this.__.store.notify("transact", this);
+      },
 
-				return js;
-			},
+      run: function () {
+        return this.__.store.notify("run", this);
+      },
 
-			transact: function(){
-				return this.__.store.notify( 'transact', this );
-			},
+      now: function () {
+        return this.__.store.notify("now", this);
+      },
 
-			run: function(){
-				return this.__.store.notify( 'run', this );
-			},
+      pivot: function () {
+        return this.__.store.notify("pivot", this);
+      },
+    };
 
-			now: function(){
-				return this.__.store.notify( 'now', this );
-			},
+    var arrayMethods = Utils.extend(
+      {
+        push: function (el) {
+          return this.append([el], "array.push");
+        },
 
-			pivot: function(){
-				return this.__.store.notify( 'pivot', this );
-			}
-		};
+        append: function (els, name) {
+          if (els && els.length)
+            return this.__.store.notify(
+              "splice",
+              this,
+              [this.length, 0].concat(els),
+              name || "array.append"
+            );
+          return this;
+        },
 
-		var arrayMethods = Utils.extend({
-			push: function( el ){
-				return this.append( [el], 'array.push' );
-			},
+        pop: function () {
+          if (!this.length) return this;
 
-			append: function( els, name ){
-				if( els && els.length )
-					return this.__.store.notify( 'splice', this, [this.length, 0].concat( els ), name || 'array.append' );
-				return this;
-			},
+          return this.__.store.notify(
+            "splice",
+            this,
+            [this.length - 1, 1],
+            "array.pop"
+          );
+        },
 
-			pop: function(){
-				if( !this.length )
-					return this;
+        unshift: function (el) {
+          return this.prepend([el], "array.unshift");
+        },
 
-				return this.__.store.notify( 'splice', this, [this.length -1, 1], 'array.pop' );
-			},
+        prepend: function (els) {
+          if (els && els.length)
+            return this.__.store.notify(
+              "splice",
+              this,
+              [0, 0].concat(els),
+              "array.prepend"
+            );
+          return this;
+        },
 
-			unshift: function( el ){
-				return this.prepend( [el], 'array.unshift' );
-			},
+        shift: function () {
+          if (!this.length) return this;
 
-			prepend: function( els ){
-				if( els && els.length )
-					return this.__.store.notify( 'splice', this, [0, 0].concat( els ), 'array.prepend' );
-				return this;
-			},
+          return this.__.store.notify("splice", this, [0, 1], "array.shift");
+        },
 
-			shift: function(){
-				if( !this.length )
-					return this;
+        splice: function (index, toRemove, toAdd) {
+          return this.__.store.notify(
+            "splice",
+            this,
+            arguments,
+            "array.splice"
+          );
+        },
 
-				return this.__.store.notify( 'splice', this, [0, 1], 'array.shift' );
-			},
+        sort: function () {
+          var mutable = this.slice();
+          mutable.sort.apply(mutable, arguments);
+          return this.__.store.notify("replace", this, mutable, "array.sort");
+        },
+      },
+      commonMethods
+    );
 
-			splice: function( index, toRemove, toAdd ){
-				return this.__.store.notify( 'splice', this, arguments, 'array.splice' );
-			},
+    var FrozenArray = Object.create(
+      Array.prototype,
+      Utils.createNE(arrayMethods)
+    );
 
-			sort: function(){
-				var mutable = this.slice();
-				mutable.sort.apply(mutable, arguments);
-				return this.__.store.notify( 'replace', this, mutable, 'array.sort' );
-			}
-		}, commonMethods );
+    var objectMethods = Utils.createNE(
+      Utils.extend(
+        {
+          remove: function (keys) {
+            var filtered = [],
+              k = keys;
+            if (keys.constructor !== Array) k = [keys];
 
-		var FrozenArray = Object.create( Array.prototype, Utils.createNE( arrayMethods ) );
+            for (var i = 0, l = k.length; i < l; i++) {
+              if (this.hasOwnProperty(k[i])) filtered.push(k[i]);
+            }
 
-		var objectMethods = Utils.createNE( Utils.extend({
-			remove: function( keys ){
-				var filtered = [],
-					k = keys
-				;
+            if (filtered.length)
+              return this.__.store.notify(
+                "remove",
+                this,
+                filtered,
+                "object.remove"
+              );
+            return this;
+          },
+        },
+        commonMethods
+      )
+    );
 
-				if( keys.constructor !== Array )
-					k = [ keys ];
+    var FrozenObject = Object.create(Object.prototype, objectMethods);
 
-				for( var i = 0, l = k.length; i<l; i++ ){
-					if( this.hasOwnProperty( k[i] ) )
-						filtered.push( k[i] );
-				}
+    var createArray = (function () {
+      // fast version
+      if ([].__proto__)
+        return function (length) {
+          var arr = new Array(length);
+          arr.__proto__ = FrozenArray;
+          return arr;
+        };
 
-				if( filtered.length )
-					return this.__.store.notify( 'remove', this, filtered, 'object.remove' );
-				return this;
-			}
-		}, commonMethods));
+      // slow version for older browsers
+      return function (length) {
+        var arr = new Array(length);
 
-		var FrozenObject = Object.create( Object.prototype, objectMethods );
+        for (var m in arrayMethods) {
+          arr[m] = arrayMethods[m];
+        }
 
-		var createArray = (function(){
-			// fast version
-			if( [].__proto__ )
-				return function( length ){
-					var arr = new Array( length );
-					arr.__proto__ = FrozenArray;
-					return arr;
-				}
+        return arr;
+      };
+    })();
 
-			// slow version for older browsers
-			return function( length ){
-				var arr = new Array( length );
-
-				for( var m in arrayMethods ){
-					arr[ m ] = arrayMethods[ m ];
-				}
-
-				return arr;
-			}
-		})();
-
-		this.clone = function( node ){
-			var cons = node.constructor;
-			if( cons === Array ){
-				return createArray( node.length );
-			}
-			else {
-				if( cons === Object ){
-					return Object.create( FrozenObject );
-				}
-				// Class instances
-				else {
-					return Object.create( cons.prototype, objectMethods );
-				}
-			}
-		}
-	}
-}
+    this.clone = function (node) {
+      var cons = node.constructor;
+      if (cons === Array) {
+        return createArray(node.length);
+      } else {
+        if (cons === Object) {
+          return Object.create(FrozenObject);
+        }
+        // Class instances
+        else {
+          return Object.create(cons.prototype, objectMethods);
+        }
+      }
+    };
+  },
+};
 //#build
 
 module.exports = nodeCreator;

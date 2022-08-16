@@ -1,27 +1,27 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-	<meta charset="UTF-8">
-	<title>Document</title>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Document</title>
 
-	<link rel="stylesheet" href="../node_modules/mocha/mocha.css" />
-	<script src="../build/freezer.js"></script>
-	<script src="../node_modules/mocha/mocha.js"></script>
-	<script src="../node_modules/chai/chai.js"></script>
-</head>
-<body>
-	<div id="mocha"></div>
+    <link rel="stylesheet" href="../node_modules/mocha/mocha.css" />
+    <script src="../build/freezer.js"></script>
+    <script src="../node_modules/mocha/mocha.js"></script>
+    <script src="../node_modules/chai/chai.js"></script>
+  </head>
+  <body>
+    <div id="mocha"></div>
     <script>
-      mocha.setup('bdd');
+      mocha.setup("bdd");
       assert = chai.assert;
     </script>
-	<script src="freezer-spec.js"></script>
-	<script src="hash-spec.js"></script>
-	<script src="array-spec.js"></script>
-	<script src="listener-spec.js"></script>
-	<script>
-		console.log('eeeso');
-		mocha.run();
-	</script>
-</body>
+    <script src="freezer-spec.js"></script>
+    <script src="hash-spec.js"></script>
+    <script src="array-spec.js"></script>
+    <script src="listener-spec.js"></script>
+    <script>
+      console.log("eeeso");
+      mocha.run();
+    </script>
+  </body>
 </html>

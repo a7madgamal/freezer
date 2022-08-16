@@ -1,2 +1,2 @@
-var Freezer = require('./src/freezer');
+var Freezer = require("./src/freezer");
 module.exports = Freezer;
