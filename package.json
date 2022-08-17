@@ -4,15 +4,15 @@
   "description": "A tree data structure that is always updated from the root, making easier to think in a reactive way.",
   "main": "build/freezer.js",
   "types": "build/freezer.d.ts",
-  "homepage": "https://github.com/arqex/freezer",
+  "homepage": "https://github.com/a7madgamal/freezer",
   "scripts": {
     "test": "node ./node_modules/mocha/bin/mocha tests",
-    "_build": "node ./node_modules/gulp/bin/gulp.js",
-    "build": "tsc --project tsconfig.json && rollup --config"
+    "build": "tsc --project tsconfig.json && rollup --config",
+    "prepare": "nm run build"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/arqex/freezer.git"
+    "url": "https://github.com/a7madgamal/freezer.git"
   },
   "keywords": [
     "react",
