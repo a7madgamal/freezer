@@ -1,17 +1,22 @@
 import { Frozen } from "./frozen";
 
-export type FreezerMethods = {
-  emit: () => void;
-  get: () => void;
-  set: () => void;
-  getData: () => void;
-  getEventHub: () => void;
+export type EventMethods = {
+  on: (event: string, cb: (store) => void) => void;
   off: () => void;
-  on: () => void;
   once: () => void;
-  setData: () => void;
+  emit: (eventName: "update", scnd: any, node: any) => void;
   trigger: () => void;
 };
+
+export type FreezerMethods = {
+  get: () => FrozenNode;
+  set: (node) => void;
+  // todo: get it from initialValue type
+  getData: () => any;
+  setData: (data) => void;
+
+  getEventHub: () => EventMethods;
+} & EventMethods;
 
 export type FreezerConstructor = {
   new (initialValue, options: FreezerOpts): FreezerMethods;
@@ -20,13 +25,7 @@ export type FreezerConstructor = {
 export interface CommonMethods {
   set: (attr, value) => unknown;
   reset: (attrs) => unknown;
-  getListener: () => {
-    on: () => void;
-    off: () => void;
-    once: () => void;
-    emit: () => void;
-    trigger: () => void;
-  };
+  getListener: () => EventMethods;
   toJS: () => unknown;
   transact: () => unknown;
   run: () => unknown;
@@ -82,7 +81,7 @@ export type Store = {
     eventName: FrozenEventName,
     node,
     options?,
-    name?: "object.set" | "object.remove"
+    name?: "object.set" | "object.remove" | "object.replace" | "array.set"
   ) => void;
   freezeFn: (obj?) => void;
   live: boolean;
@@ -96,13 +95,12 @@ export interface FrozenNode extends FrozenMethods {
   __: {
     pivot: number;
     listener?: {
-      ticking: unknown;
-      emit: (eventName: unknown, scnd: unknown, node: FrozenNode) => void;
-      prevState: FrozenNode | 0;
-    };
+      ticking?: unknown;
+      prevState?: FrozenNode | 0;
+    } & EventMethods;
     updateRoot: (oldChild: unknown, newChild: unknown) => unknown;
     parents: unknown[];
-    trans: unknown[];
+    trans?: any[];
     store: Store;
   };
 }

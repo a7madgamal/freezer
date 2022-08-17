@@ -410,7 +410,7 @@ var Frozen = {
     }
   },
 
-  createListener: function (frozen) {
+  createListener: function (frozen: FrozenNode) {
     var l = frozen.__.listener;
 
     if (!l) {

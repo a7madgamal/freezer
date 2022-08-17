@@ -10,11 +10,12 @@ import { Utils } from "./utils";
 var nodeCreator: NodeCreator = {
   init: function (this: NodeCreator, Frozen) {
     var commonMethods: CommonMethods = {
-      set: function (attr, value) {
-        var attrs = attr,
-          update = this.__.trans,
-          isArray = this.constructor === Array,
-          msg = "Freezer arrays only accept numeric attributes, given: ";
+      set: function (this: FrozenNode, attr, value) {
+        var attrs = attr;
+        var update: any = this.__.trans;
+        var isArray = this.constructor === Array;
+        var msg = "Freezer arrays only accept numeric attributes, given: ";
+
         if (typeof attr !== "object") {
           if (isArray && parseInt(attr) != attr) {
             Utils.warn(0, msg + attr);
@@ -39,11 +40,11 @@ var nodeCreator: NodeCreator = {
           if (!update) return Utils.findPivot(this) || this;
         }
 
-        var name = isArray ? "array.set" : "object.set";
+        var name = isArray ? ("array.set" as const) : ("object.set" as const);
         return this.__.store.notify("merge", this, attrs, name);
       },
 
-      reset: function (attrs) {
+      reset: function (this: FrozenNode, attrs) {
         return this.__.store.notify("replace", this, attrs, "object.replace");
       },
 
