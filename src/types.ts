@@ -1,7 +1,7 @@
 import { Frozen } from "./frozen";
 
 export type EventMethods = {
-  on: (event: string, cb: (store) => void) => void;
+  on: (event: string, cb: (newData?: any, oldData?: any) => void) => void;
   off: () => void;
   once: () => void;
   emit: (eventName: "update", scnd: any, node: any) => void;
