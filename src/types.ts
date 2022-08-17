@@ -1,8 +1,32 @@
 import { Frozen } from "./frozen";
+
+export type FreezerMethods = {
+  emit: () => void;
+  get: () => void;
+  set: () => void;
+  getData: () => void;
+  getEventHub: () => void;
+  off: () => void;
+  on: () => void;
+  once: () => void;
+  setData: () => void;
+  trigger: () => void;
+};
+
+export type FreezerConstructor = {
+  new (initialValue, options: FreezerOpts): FreezerMethods;
+};
+
 export interface CommonMethods {
   set: (attr, value) => unknown;
   reset: (attrs) => unknown;
-  getListener: () => unknown;
+  getListener: () => {
+    on: () => void;
+    off: () => void;
+    once: () => void;
+    emit: () => void;
+    trigger: () => void;
+  };
   toJS: () => unknown;
   transact: () => unknown;
   run: () => unknown;
@@ -68,13 +92,13 @@ export type Store = {
 
 interface FrozenMethods extends CommonMethods, ObjMethods, ArrayMethods {}
 
-export interface FreezerNode extends FrozenMethods {
+export interface FrozenNode extends FrozenMethods {
   __: {
     pivot: number;
     listener?: {
       ticking: unknown;
-      emit: (eventName: unknown, scnd: unknown, node: FreezerNode) => void;
-      prevState: FreezerNode | 0;
+      emit: (eventName: unknown, scnd: unknown, node: FrozenNode) => void;
+      prevState: FrozenNode | 0;
     };
     updateRoot: (oldChild: unknown, newChild: unknown) => unknown;
     parents: unknown[];
@@ -86,5 +110,5 @@ export interface FreezerNode extends FrozenMethods {
 export type NodeCreator = {
   init: (frozen: typeof Frozen) => void;
   // todo: fix this to return based on node type
-  clone?: (node) => FreezerNode;
+  clone?: (node) => FrozenNode;
 };

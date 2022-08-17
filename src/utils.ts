@@ -1,4 +1,4 @@
-import { FreezerNode } from "./types";
+import { FrozenNode } from "./types";
 
 var global =
   typeof global !== "undefined"
@@ -131,7 +131,7 @@ var Utils = {
     return nextTick;
   })(),
 
-  findPivot: function (node: FreezerNode) {
+  findPivot: function (node: FrozenNode) {
     if (!node || !node.__) return;
 
     if (node.__.pivot) return node;
@@ -162,7 +162,7 @@ var Utils = {
     return found;
   },
 
-  isLeaf: function (node: FreezerNode, freezeInstances) {
+  isLeaf: function (node: FrozenNode, freezeInstances) {
     var cons;
     return (
       !node ||

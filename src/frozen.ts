@@ -1,12 +1,12 @@
 import { Utils } from "./utils";
 import { nodeCreator } from "./nodeCreator";
 import { Emitter } from "./emitter";
-import { FreezerNode, Store } from "./types";
+import { FrozenNode, Store } from "./types";
 
 var Frozen = {
-  freeze: function (node: FreezerNode, store: Partial<Store>): FreezerNode {
+  freeze: function (node: any, store: Partial<Store>): FrozenNode {
     if (node && node.__) {
-      return node as unknown as FreezerNode;
+      return node;
     }
 
     var me = this;
@@ -38,7 +38,7 @@ var Frozen = {
     return frozen;
   },
 
-  merge: function (node: FreezerNode, attrs: object) {
+  merge: function (node: FrozenNode, attrs: object) {
     var _ = node.__,
       trans = _.trans,
       // Clone the attrs to not modify the argument
@@ -96,7 +96,7 @@ var Frozen = {
     return frozen;
   },
 
-  replace: function (node: FreezerNode, replacement: FreezerNode) {
+  replace: function (node: FrozenNode, replacement: FrozenNode) {
     var me = this;
     var _ = node.__;
     var frozen = replacement;
@@ -118,7 +118,7 @@ var Frozen = {
     return frozen;
   },
 
-  remove: function (node: FreezerNode, attrs: (string | number)[]) {
+  remove: function (node: FrozenNode, attrs: (string | number)[]) {
     var trans = node.__.trans;
     if (trans) {
       for (var l = attrs.length - 1; l >= 0; l--) delete trans[attrs[l]];
@@ -151,7 +151,7 @@ var Frozen = {
     return frozen;
   },
 
-  splice: function (node: FreezerNode, args) {
+  splice: function (node: FrozenNode, args) {
     var _ = node.__,
       trans = _.trans;
     if (trans) {
@@ -200,7 +200,7 @@ var Frozen = {
     return frozen;
   },
 
-  transact: function (node: FreezerNode) {
+  transact: function (node: FrozenNode) {
     var me = this,
       transacting = node.__.trans,
       trans;
@@ -224,7 +224,7 @@ var Frozen = {
     return trans;
   },
 
-  run: function (node: FreezerNode) {
+  run: function (node: FrozenNode) {
     var me = this,
       trans = node.__.trans;
     if (!trans) return node;
@@ -242,19 +242,19 @@ var Frozen = {
     return result;
   },
 
-  pivot: function (node: FreezerNode) {
+  pivot: function (node: FrozenNode) {
     node.__.pivot = 1;
     this.unpivot(node);
     return node;
   },
 
-  unpivot: function (node: FreezerNode) {
+  unpivot: function (node: FrozenNode) {
     Utils.nextTick(function () {
       node.__.pivot = 0;
     });
   },
 
-  refresh: function (node: FreezerNode, oldChild, newChild?) {
+  refresh: function (node: FrozenNode, oldChild, newChild?) {
     var me = this;
     var trans = node.__.trans;
     var found = 0;
@@ -296,7 +296,7 @@ var Frozen = {
     this.refreshParents(node, frozen);
   },
 
-  fixChildren: function (node: FreezerNode, oldNode: FreezerNode) {
+  fixChildren: function (node: FrozenNode, oldNode: FrozenNode) {
     var me = this;
     Utils.each(node, function (child) {
       if (!child || !child.__) return;
@@ -313,7 +313,7 @@ var Frozen = {
     });
   },
 
-  copyMeta: function (node: FreezerNode) {
+  copyMeta: function (node: FrozenNode) {
     var me = this,
       frozen = nodeCreator.clone(node),
       _ = node.__;
@@ -333,7 +333,7 @@ var Frozen = {
     return frozen;
   },
 
-  refreshParents: function (oldChild: FreezerNode, newChild: FreezerNode) {
+  refreshParents: function (oldChild: FrozenNode, newChild: FrozenNode) {
     var _ = oldChild.__,
       parents = _.parents.length,
       i;
@@ -351,7 +351,7 @@ var Frozen = {
     }
   },
 
-  removeParent: function (node: FreezerNode, parent) {
+  removeParent: function (node: FrozenNode, parent) {
     var parents = node.__.parents,
       index = parents.indexOf(parent);
     if (index !== -1) {
@@ -359,7 +359,7 @@ var Frozen = {
     }
   },
 
-  addParent: function (node: FreezerNode, parent) {
+  addParent: function (node: FrozenNode, parent) {
     var parents = node.__.parents,
       index = parents.indexOf(parent);
     if (index === -1) {
@@ -373,7 +373,7 @@ var Frozen = {
   },
 
   emit: function (
-    node: FreezerNode,
+    node: FrozenNode,
     eventName: "update",
     param?,
     now?: boolean

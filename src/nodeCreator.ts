@@ -1,7 +1,7 @@
 import {
   ArrayMethods,
   CommonMethods,
-  FreezerNode,
+  FrozenNode,
   NodeCreator,
   ObjMethods,
 } from "./types";
@@ -208,14 +208,14 @@ var nodeCreator: NodeCreator = {
     this.clone = function (node) {
       var cons = node.constructor;
       if (cons === Array) {
-        return createArray(node.length) as unknown as FreezerNode;
+        return createArray(node.length) as unknown as FrozenNode;
       } else {
         if (cons === Object) {
-          return Object.create(FrozenObject) as FreezerNode;
+          return Object.create(FrozenObject) as FrozenNode;
         }
         // Class instances
         else {
-          return Object.create(cons.prototype, objectMethods) as FreezerNode;
+          return Object.create(cons.prototype, objectMethods) as FrozenNode;
         }
       }
     };

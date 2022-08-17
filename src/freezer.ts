@@ -1,23 +1,12 @@
 import { Utils } from "./utils";
 import { Frozen } from "./frozen";
-import { FreezerOpts, Store, FreezerNode } from "./types";
-
-type FreezerMethods = {
-  emit: () => void;
-  get: () => void;
-  getData: () => void;
-  getEventHub: () => void;
-  off: () => void;
-  on: () => void;
-  once: () => void;
-  set: () => void;
-  setData: () => void;
-  trigger: () => void;
-};
-
-type FreezerConstructor = {
-  new (initialValue, options: FreezerOpts): FreezerMethods;
-};
+import {
+  FreezerOpts,
+  Store,
+  FrozenNode,
+  FreezerMethods,
+  FreezerConstructor,
+} from "./types";
 
 var Freezer = function (
   this: FreezerMethods,
@@ -32,11 +21,11 @@ var Freezer = function (
     singleParent: ops.singleParent || false,
   };
   // Immutable data
-  var frozen;
+  var frozen: FrozenNode;
   var pivotTriggers = [];
   var pivotTicking = 0;
 
-  var triggerNow = function (node: FreezerNode) {
+  var triggerNow = function (node: FrozenNode) {
     var _ = node.__;
     var i: number;
 
@@ -106,8 +95,8 @@ var Freezer = function (
         };
 
   // Create the frozen object
-  frozen = Frozen.freeze(initialValue as unknown as FreezerNode, store);
-  frozen.__.updateRoot = function (prevNode, updated) {
+  frozen = Frozen.freeze(initialValue, store);
+  frozen.__.updateRoot = function (prevNode: FrozenNode, updated: FrozenNode) {
     if (prevNode === frozen) {
       frozen = updated;
       if (lastCall) {
@@ -161,3 +150,5 @@ function detachedWarn(lastCall) {
 }
 
 export default Freezer as unknown as FreezerConstructor;
+
+export { FreezerOpts, Store, FrozenNode, FreezerMethods, FreezerConstructor };
