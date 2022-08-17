@@ -1,7 +1,7 @@
 // Conditional definition to work also in the browser
 // tests where Freezer is global
 if (typeof Freezer == "undefined") {
-  var Freezer = require("../../freezer.js");
+  var Freezer = require("../../build/freezer.js");
   var assert = require("assert");
 }
 
@@ -9,8 +9,8 @@ var freezer, data;
 
 var example = {
   a: 1,
-  b: {z: 0, y: 1, x: ["A", "B"]},
-  c: [1, 2, {w: 3}],
+  b: { z: 0, y: 1, x: ["A", "B"] },
+  c: [1, 2, { w: 3 }],
   d: null,
 };
 

@@ -1,7 +1,7 @@
 // Conditional definition to work also in the browser
 // tests where Freezer is global
 if (typeof Freezer == "undefined") {
-  var Freezer = require("../freezer.js");
+  var Freezer = require("../build/freezer.js");
   var assert = require("assert");
 }
 
@@ -9,8 +9,8 @@ var freezer, data;
 
 var example = {
   a: 1,
-  b: {z: 0, y: 1, x: ["A", "B"]},
-  c: [1, 2, {w: 3}],
+  b: { z: 0, y: 1, x: ["A", "B"] },
+  c: [1, 2, { w: 3 }],
   d: null,
 };
 
@@ -144,7 +144,7 @@ describe("Freezer array test", function () {
 
   it("Delete,restore and delete an array", function () {
     var arr = data.c;
-    data.remove("c").set({c: arr}).remove("c");
+    data.remove("c").set({ c: arr }).remove("c");
 
     assert.deepEqual(freezer.get().c, undefined);
   });
@@ -154,14 +154,14 @@ describe("Freezer array test", function () {
     var update = arr.set("foo", "bar");
     assert.equal(arr, update);
 
-    update = arr.set({1: "hola", foo: "bar"});
+    update = arr.set({ 1: "hola", foo: "bar" });
 
     assert.equal(update[1], 2);
     assert.equal(update.foo, undefined);
   });
 
   it("Array sort", function () {
-    var updated = data.set({arr: [1, 8, -2, 3, 1]}),
+    var updated = data.set({ arr: [1, 8, -2, 3, 1] }),
       arr = updated.arr;
     var updatedArr = arr.sort(function (a, b) {
       return a < b ? -1 : 1;

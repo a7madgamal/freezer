@@ -1,17 +1,17 @@
-"use strict";
+import { Utils } from "./utils";
+import { nodeCreator } from "./nodeCreator";
+import { Emitter } from "./emitter";
+import { FreezerNode } from "./types";
 
-var Utils = require("./utils"),
-  nodeCreator = require("./nodeCreator"),
-  Emitter = require("./emitter");
-//#build
 var Frozen = {
-  freeze: function (node, store) {
+  freeze: function (node: FreezerNode, store) {
     if (node && node.__) {
       return node;
     }
 
-    var me = this,
-      frozen = nodeCreator.clone(node);
+    var me = this;
+    var frozen = nodeCreator.clone(node);
+
     Utils.addNE(frozen, {
       __: {
         listener: false,
@@ -38,7 +38,7 @@ var Frozen = {
     return frozen;
   },
 
-  merge: function (node, attrs) {
+  merge: function (node: FreezerNode, attrs) {
     var _ = node.__,
       trans = _.trans,
       // Clone the attrs to not modify the argument
@@ -96,10 +96,11 @@ var Frozen = {
     return frozen;
   },
 
-  replace: function (node, replacement) {
-    var me = this,
-      _ = node.__,
-      frozen = replacement;
+  replace: function (node: FreezerNode, replacement) {
+    var me = this;
+    var _ = node.__;
+    var frozen = replacement;
+
     if (!Utils.isLeaf(replacement, _.store.freezeInstances)) {
       frozen = me.freeze(replacement, _.store);
       frozen.__.parents = _.parents;
@@ -117,16 +118,16 @@ var Frozen = {
     return frozen;
   },
 
-  remove: function (node, attrs) {
+  remove: function (node: FreezerNode, attrs) {
     var trans = node.__.trans;
     if (trans) {
       for (var l = attrs.length - 1; l >= 0; l--) delete trans[attrs[l]];
       return node;
     }
 
-    var me = this,
-      frozen = this.copyMeta(node),
-      isFrozen;
+    var me = this;
+    var frozen = this.copyMeta(node);
+    var isFrozen;
 
     Utils.each(node, function (child, key) {
       isFrozen = child && child.__;
@@ -150,7 +151,7 @@ var Frozen = {
     return frozen;
   },
 
-  splice: function (node, args) {
+  splice: function (node: FreezerNode, args) {
     var _ = node.__,
       trans = _.trans;
     if (trans) {
@@ -199,7 +200,7 @@ var Frozen = {
     return frozen;
   },
 
-  transact: function (node) {
+  transact: function (node: FreezerNode) {
     var me = this,
       transacting = node.__.trans,
       trans;
@@ -223,7 +224,7 @@ var Frozen = {
     return trans;
   },
 
-  run: function (node) {
+  run: function (node: FreezerNode) {
     var me = this,
       trans = node.__.trans;
     if (!trans) return node;
@@ -241,22 +242,23 @@ var Frozen = {
     return result;
   },
 
-  pivot: function (node) {
+  pivot: function (node: FreezerNode) {
     node.__.pivot = 1;
     this.unpivot(node);
     return node;
   },
 
-  unpivot: function (node) {
+  unpivot: function (node: FreezerNode) {
     Utils.nextTick(function () {
       node.__.pivot = 0;
     });
   },
 
-  refresh: function (node, oldChild, newChild) {
-    var me = this,
-      trans = node.__.trans,
-      found = 0;
+  refresh: function (node: FreezerNode, oldChild, newChild?) {
+    var me = this;
+    var trans = node.__.trans;
+    var found = 0;
+
     if (trans) {
       Utils.each(trans, function (child, key) {
         if (found) return;
@@ -272,15 +274,15 @@ var Frozen = {
       return node;
     }
 
-    var frozen = this.copyMeta(node),
-      replacement,
-      __;
+    var frozen = this.copyMeta(node);
+    var __;
 
     Utils.each(node, function (child, key) {
       if (child === oldChild) {
         child = newChild;
       }
 
+      // todo: is this a bug? should be === ?
       if (child && (__ = child.__)) {
         me.removeParent(child, node);
         me.addParent(child, frozen);
@@ -294,7 +296,7 @@ var Frozen = {
     this.refreshParents(node, frozen);
   },
 
-  fixChildren: function (node, oldNode) {
+  fixChildren: function (node: FreezerNode, oldNode: FreezerNode) {
     var me = this;
     Utils.each(node, function (child) {
       if (!child || !child.__) return;
@@ -311,7 +313,7 @@ var Frozen = {
     });
   },
 
-  copyMeta: function (node) {
+  copyMeta: function (node: FreezerNode) {
     var me = this,
       frozen = nodeCreator.clone(node),
       _ = node.__;
@@ -331,7 +333,7 @@ var Frozen = {
     return frozen;
   },
 
-  refreshParents: function (oldChild, newChild) {
+  refreshParents: function (oldChild: FreezerNode, newChild: FreezerNode) {
     var _ = oldChild.__,
       parents = _.parents.length,
       i;
@@ -349,7 +351,7 @@ var Frozen = {
     }
   },
 
-  removeParent: function (node, parent) {
+  removeParent: function (node: FreezerNode, parent) {
     var parents = node.__.parents,
       index = parents.indexOf(parent);
     if (index !== -1) {
@@ -357,7 +359,7 @@ var Frozen = {
     }
   },
 
-  addParent: function (node, parent) {
+  addParent: function (node: FreezerNode, parent) {
     var parents = node.__.parents,
       index = parents.indexOf(parent);
     if (index === -1) {
@@ -370,7 +372,7 @@ var Frozen = {
     }
   },
 
-  emit: function (node, eventName, param, now) {
+  emit: function (node: FreezerNode, eventName, param?, now?) {
     var listener = node.__.listener;
     if (!listener) return;
 
@@ -422,6 +424,5 @@ var Frozen = {
 };
 
 nodeCreator.init(Frozen);
-//#build
 
-module.exports = Frozen;
+export { Frozen };

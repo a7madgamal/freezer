@@ -1,24 +1,23 @@
-"use strict";
+import { Utils } from "./utils";
+import { Frozen } from "./frozen";
+import { EventName, FreezerOpts, Store } from "./types";
 
-var Utils = require("./utils.js"),
-  Emitter = require("./emitter"),
-  Frozen = require("./frozen");
-//#build
-var Freezer = function (initialValue, options) {
-  var me = this,
-    ops = options || {},
-    store = {
-      live: ops.live || false,
-      freezeInstances: ops.freezeInstances || false,
-      singleParent: ops.singleParent || false,
-    };
+var Freezer = function (initialValue, options: FreezerOpts) {
+  var me = this;
+  var ops = options || ({} as FreezerOpts);
+  var store: Partial<Store> = {
+    live: ops.live || false,
+    freezeInstances: ops.freezeInstances || false,
+    singleParent: ops.singleParent || false,
+  };
   // Immutable data
   var frozen;
-  var pivotTriggers = [],
-    pivotTicking = 0;
+  var pivotTriggers = [];
+  var pivotTicking = 0;
+
   var triggerNow = function (node) {
-    var _ = node.__,
-      i;
+    var _ = node.__;
+    var i;
 
     if (_.listener) {
       var prevState = _.listener.prevState || node;
@@ -44,12 +43,12 @@ var Freezer = function (initialValue, options) {
 
   // Last call to display info about orphan calls
   var lastCall;
-  store.notify = function notify(eventName, node, options, name) {
+  store.notify = function notify(eventName: EventName, node, options, name) {
     if (name) {
       if (lastCall && !lastCall.onStore) {
         detachedWarn(lastCall);
       }
-      lastCall = {name: name, node: node, options: options, onStore: false};
+      lastCall = { name: name, node: node, options: options, onStore: false };
     }
 
     if (eventName === "now") {
@@ -123,7 +122,7 @@ var Freezer = function (initialValue, options) {
     },
   });
 
-  Utils.addNE(this, {getData: this.get, setData: this.set});
+  Utils.addNE(this, { getData: this.get, setData: this.set });
 };
 
 function detachedWarn(lastCall) {
@@ -135,6 +134,4 @@ function detachedWarn(lastCall) {
   );
 }
 
-//#build
-
-module.exports = Freezer;
+export default Freezer;

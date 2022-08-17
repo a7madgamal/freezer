@@ -1,7 +1,7 @@
 // Conditional definition to work also in the browser
 // tests where Freezer is global
 if (typeof Freezer == "undefined") {
-  var Freezer = require("../freezer.js");
+  var Freezer = require("../build/freezer.js");
   var assert = require("assert");
 }
 
@@ -9,8 +9,8 @@ var freezer, data;
 
 var example = {
   a: 1,
-  b: {z: 0, y: 1, x: ["A", "B"]},
-  c: [1, 2, {w: 3}],
+  b: { z: 0, y: 1, x: ["A", "B"] },
+  c: [1, 2, { w: 3 }],
   d: null,
 };
 
@@ -37,7 +37,7 @@ describe("Freezer events test", function () {
       done();
     });
 
-    data.b.set({c: 3});
+    data.b.set({ c: 3 });
   });
 
   it("Node updates should return the current and previous node.", function (done) {
@@ -50,7 +50,7 @@ describe("Freezer events test", function () {
       done();
     });
 
-    data.b.set({c: 3});
+    data.b.set({ c: 3 });
   });
 
   it("Listen to multiple node updates", function (done) {
@@ -61,9 +61,9 @@ describe("Freezer events test", function () {
       done();
     });
 
-    freezer.get().b.set({c: 1});
-    freezer.get().b.set({c: 2});
-    freezer.get().b.set({c: 3});
+    freezer.get().b.set({ c: 1 });
+    freezer.get().b.set({ c: 2 });
+    freezer.get().b.set({ c: 3 });
   });
 
   it("Events must be asynchronous for all the nodes", function () {
@@ -78,13 +78,13 @@ describe("Freezer events test", function () {
     data.c[2].getListener().on("update", handler(4));
     freezer.getEventHub().on("update", handler(1));
 
-    data.c[2].set({w: 4});
+    data.c[2].set({ w: 4 });
 
     assert.equal(triggered, "0");
   });
 
   it("Listen to multiple node updates, live mode", function (done) {
-    var freezer = new Freezer(example, {live: true}),
+    var freezer = new Freezer(example, { live: true }),
       listener = freezer.get().b.getListener(),
       count = 0;
     freezer.getEventHub().on("update", function (data) {
@@ -94,13 +94,13 @@ describe("Freezer events test", function () {
       }
     });
 
-    freezer.get().b.set({c: 1});
-    freezer.get().b.set({c: 2});
-    freezer.get().b.set({c: 3});
+    freezer.get().b.set({ c: 1 });
+    freezer.get().b.set({ c: 2 });
+    freezer.get().b.set({ c: 3 });
   });
 
   it("Updates should also return previous node in live mode", function (done) {
-    var freezer = new Freezer(example, {live: true}),
+    var freezer = new Freezer(example, { live: true }),
       listener = freezer.get().b.getListener(),
       count = 0;
     freezer.getEventHub().on("update", function (data, prev) {
@@ -111,13 +111,13 @@ describe("Freezer events test", function () {
       }
     });
 
-    freezer.get().b.set({c: 1});
-    var prevB = freezer.get().b.set({c: 2});
-    freezer.get().b.set({c: 3});
+    freezer.get().b.set({ c: 1 });
+    var prevB = freezer.get().b.set({ c: 2 });
+    freezer.get().b.set({ c: 3 });
   });
 
   it("Live mode should trigger in all parents synchronously.", function () {
-    var freezer = new Freezer(example, {live: true}),
+    var freezer = new Freezer(example, { live: true }),
       data = freezer.get(),
       triggered = "",
       handler = function (key) {
@@ -129,7 +129,7 @@ describe("Freezer events test", function () {
     data.c.getListener().on("update", handler(3));
     data.c[2].getListener().on("update", handler(4));
 
-    data.c[2].set({w: 4});
+    data.c[2].set({ w: 4 });
 
     assert.equal(triggered, "431");
   });
@@ -140,7 +140,7 @@ describe("Freezer events test", function () {
       done();
     });
 
-    data.b.set({c: 3});
+    data.b.set({ c: 3 });
   });
 
   it("Update events should return new and old nodes", function (done) {
@@ -150,7 +150,7 @@ describe("Freezer events test", function () {
       done();
     });
 
-    data.b.set({c: 3});
+    data.b.set({ c: 3 });
   });
 
   it("Listen to multiple root updates", function (done) {
@@ -160,11 +160,11 @@ describe("Freezer events test", function () {
       done();
     });
 
-    freezer.get().b.set({c: 1}).set({c: 2}).set({c: 3});
+    freezer.get().b.set({ c: 1 }).set({ c: 2 }).set({ c: 3 });
   });
 
   it("Listen to multiple root updates, live mode", function (done) {
-    var freezer = new Freezer(example, {live: true}),
+    var freezer = new Freezer(example, { live: true }),
       count = 0;
     freezer.getEventHub().on("update", function (data) {
       if (++count == 3) {
@@ -174,7 +174,7 @@ describe("Freezer events test", function () {
       }
     });
 
-    freezer.get().b.set({c: 1}).set({c: 2}).set({c: 3});
+    freezer.get().b.set({ c: 1 }).set({ c: 2 }).set({ c: 3 });
   });
 
   it("Listen to updates adding a duplicate", function (done) {
@@ -186,7 +186,7 @@ describe("Freezer events test", function () {
       done();
     });
 
-    data.c[2].set({u: data.b.x});
+    data.c[2].set({ u: data.b.x });
   });
 
   it("Listen to multiple updates", function (done) {
@@ -196,14 +196,14 @@ describe("Freezer events test", function () {
       assert.equal(data.c, i);
 
       if (i == 6) done();
-      else data.set({c: ++i});
+      else data.set({ c: ++i });
     });
 
-    data.b.set({c: ++i});
+    data.b.set({ c: ++i });
   });
 
   it("Replace the data should trigger an update", function (done) {
-    data.b.set({c: 3});
+    data.b.set({ c: 3 });
 
     freezer.getEventHub().on("update", function () {
       assert.deepEqual(freezer.getData(), data);
@@ -214,7 +214,7 @@ describe("Freezer events test", function () {
   });
 
   it("Unmodified wrappers when replacing the data should preserve the listeners", function (done) {
-    data.b.set({z: 2, y: 3});
+    data.b.set({ z: 2, y: 3 });
     data.c.shift();
 
     var updated = freezer.getData(),
@@ -225,7 +225,7 @@ describe("Freezer events test", function () {
     });
 
     freezer.setData(data);
-    freezer.getData().c[2].set({u: 10});
+    freezer.getData().c[2].set({ u: 10 });
   });
 
   it("Array chained calls should trigger update with all changes applied", function (done) {
@@ -250,11 +250,11 @@ describe("Freezer events test", function () {
       done();
     });
 
-    data.b.set({y: 3}).remove("x").set({a: 2});
+    data.b.set({ y: 3 }).remove("x").set({ a: 2 });
   });
 
   it("Reset of node should trigger an update", function (done) {
-    var foobar = {foo: "bar", bar: "foo"};
+    var foobar = { foo: "bar", bar: "foo" };
 
     freezer.getEventHub().on("update", function (newData) {
       assert.deepEqual(newData.b, foobar);
@@ -270,7 +270,7 @@ describe("Freezer events test", function () {
     var listener = updated.getListener();
 
     listener.on("update", function (updated) {
-      var result = {z: 0, y: 1, x: ["A", "B"], foo: "bar"},
+      var result = { z: 0, y: 1, x: ["A", "B"], foo: "bar" },
         data = freezer.getData();
       assert.deepEqual(updated, result);
       assert.equal(updated, data.b);
@@ -307,7 +307,7 @@ describe("Freezer events test", function () {
     };
 
     freezer.getEventHub().on("update", handler);
-    freezer.get().set({a: 2}).now();
+    freezer.get().set({ a: 2 }).now();
     freezer.getEventHub().off("update", handler);
 
     handler = function (update) {
@@ -353,7 +353,7 @@ describe("Freezer events test", function () {
     data.c[2].getListener().on("update", handler(4));
     freezer.getEventHub().on("update", handler(1));
 
-    data.c[2].set({w: 4}).now();
+    data.c[2].set({ w: 4 }).now();
 
     assert.equal(triggered, "4321");
   });
@@ -365,7 +365,7 @@ describe("Freezer events test", function () {
       assert.equal(update.a, 10);
       done();
     });
-    data.set({a: 10}).now();
+    data.set({ a: 10 }).now();
   });
 
   it("beforeAll afterAll", function (done) {
@@ -406,7 +406,7 @@ describe("Freezer events test", function () {
         out += eventName;
       });
 
-    data.set({a: 10});
+    data.set({ a: 10 });
 
     setTimeout(function () {
       assert.equal(out, "update event update");
@@ -415,7 +415,7 @@ describe("Freezer events test", function () {
   });
 
   it("All the parents of a duplicated node should trigger update", function (done) {
-    data.b.set({u: data.c[2]});
+    data.b.set({ u: data.c[2] });
 
     var bUpdated = false,
       cUpdated = false;
@@ -432,7 +432,7 @@ describe("Freezer events test", function () {
         cUpdated = true;
       });
 
-    freezer.get().b.u.set({w: 5});
+    freezer.get().b.u.set({ w: 5 });
 
     setTimeout(function () {
       assert(bUpdated);
@@ -474,8 +474,8 @@ describe("Freezer events test", function () {
   });
 
   it("Two different freezer instances shouldn't listen to other's update events", function (done) {
-    var f1 = new Freezer({name: "f1", triggered: 0}),
-      f2 = new Freezer({name: "f2", triggered: 0});
+    var f1 = new Freezer({ name: "f1", triggered: 0 }),
+      f2 = new Freezer({ name: "f2", triggered: 0 });
     f1.on("update", function (data) {
       assert.equal(data.name, "f1");
       assert.equal(data.triggered, 1);
@@ -486,8 +486,8 @@ describe("Freezer events test", function () {
       assert.equal(data.triggered, 1);
     });
 
-    f1.get().set({triggered: f1.get().triggered + 1});
-    f2.get().set({triggered: f2.get().triggered + 1});
+    f1.get().set({ triggered: f1.get().triggered + 1 });
+    f2.get().set({ triggered: f2.get().triggered + 1 });
 
     setTimeout(done, 50);
   });

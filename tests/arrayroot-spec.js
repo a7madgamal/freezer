@@ -1,13 +1,13 @@
 // Conditional definition to work also in the browser
 // tests where Freezer is global
 if (typeof Freezer == "undefined") {
-  var Freezer = require("../freezer.js");
+  var Freezer = require("../build/freezer.js");
   var assert = require("assert");
 }
 
 var freezer, data;
 
-var example = [1, 2, 3, {a: 1}];
+var example = [1, 2, 3, { a: 1 }];
 
 describe("Freezer array as root test", function () {
   beforeEach(function () {
@@ -40,7 +40,7 @@ describe("Freezer array as root test", function () {
   });
 
   it("push", function () {
-    var result = [1, 2, 3, {a: 1}, 5];
+    var result = [1, 2, 3, { a: 1 }, 5];
 
     data = data.push(5);
     assert.deepEqual(data, result);
@@ -48,7 +48,7 @@ describe("Freezer array as root test", function () {
   });
 
   it("shift", function () {
-    var result = [2, 3, {a: 1}];
+    var result = [2, 3, { a: 1 }];
 
     data = data.shift();
     assert.deepEqual(data, result);
@@ -56,7 +56,7 @@ describe("Freezer array as root test", function () {
   });
 
   it("unshift", function () {
-    var result = [0, 1, 2, 3, {a: 1}];
+    var result = [0, 1, 2, 3, { a: 1 }];
 
     data = data.unshift(0);
     assert.deepEqual(data, result);

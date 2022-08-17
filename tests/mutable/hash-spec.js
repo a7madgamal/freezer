@@ -1,7 +1,7 @@
 // Conditional definition to work also in the browser
 // tests where Freezer is global
 if (typeof Freezer == "undefined") {
-  var Freezer = require("../../freezer.js");
+  var Freezer = require("../../build/freezer.js");
   var assert = require("assert");
 }
 
@@ -9,8 +9,8 @@ var freezer, data;
 
 var example = {
   a: 1,
-  b: {z: 0, y: 1, x: ["A", "B"]},
-  c: [1, 2, {w: 3}],
+  b: { z: 0, y: 1, x: ["A", "B"] },
+  c: [1, 2, { w: 3 }],
   d: null,
 };
 
@@ -21,7 +21,7 @@ describe("Freezer hash test", function () {
   });
 
   it("Add a new element to a hash", function () {
-    var chained = data.b.set({e: 5});
+    var chained = data.b.set({ e: 5 });
 
     var updated = freezer.getData();
 
@@ -31,7 +31,7 @@ describe("Freezer hash test", function () {
   });
 
   it("Add a new element to a hash doesnt modify other hash elements", function () {
-    var chained = data.b.set({e: 5});
+    var chained = data.b.set({ e: 5 });
 
     var updated = freezer.getData();
 
@@ -65,7 +65,7 @@ describe("Freezer hash test", function () {
 
     assert.equal(updated.b, undefined);
 
-    b.set({z: 2});
+    b.set({ z: 2 });
 
     var second = freezer.getData();
 
@@ -100,7 +100,7 @@ describe("Freezer hash test", function () {
   });
 
   it("Add an null key should work", function () {
-    var chained = data.set({u: null});
+    var chained = data.set({ u: null });
 
     var updated = freezer.getData();
 
@@ -109,7 +109,7 @@ describe("Freezer hash test", function () {
   });
 
   it("Removing a duplicate node should preserve duplicates", function () {
-    data.c.set({0: data.b});
+    data.c.set({ 0: data.b });
 
     var updated = freezer.getData();
     assert.equal(updated.b, updated.c[0]);
@@ -122,7 +122,7 @@ describe("Freezer hash test", function () {
   });
 
   it("Removing all duplicates should remove the node", function () {
-    data.set({d: data.b});
+    data.set({ d: data.b });
 
     var updated = freezer.getData(),
       d = updated.d;
@@ -138,14 +138,14 @@ describe("Freezer hash test", function () {
     var third = freezer.getData();
     assert.equal(third.d, undefined);
 
-    d.set({z: 9});
+    d.set({ z: 9 });
 
     var fourth = freezer.getData();
     assert.equal(third, fourth);
   });
 
   it("Reset an object", function () {
-    var foobar = {foo: "bar", bar: "foo"},
+    var foobar = { foo: "bar", bar: "foo" },
       updated = data.b.reset(foobar);
     assert.deepEqual(updated, foobar);
     assert.equal(freezer.getData().b, updated);

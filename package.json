@@ -2,11 +2,13 @@
   "name": "freezer-js",
   "version": "0.14.1",
   "description": "A tree data structure that is always updated from the root, making easier to think in a reactive way.",
-  "main": "freezer.js",
+  "main": "build/freezer.js",
+  "types": "build/freezer.d.ts",
   "homepage": "https://github.com/arqex/freezer",
   "scripts": {
     "test": "node ./node_modules/mocha/bin/mocha tests",
-    "build": "node ./node_modules/gulp/bin/gulp.js"
+    "_build": "node ./node_modules/gulp/bin/gulp.js",
+    "build": "tsc --project tsconfig.json && rollup --config"
   },
   "repository": {
     "type": "git",
@@ -31,6 +33,8 @@
     "graceful-fs": "^4.2.10"
   },
   "devDependencies": {
+    "@rollup/plugin-typescript": "^8.3.4",
+    "@types/node": "^18.7.6",
     "benchmark": "~1.0.0",
     "chai": "~2.0.0",
     "gulp": "~3.8.11",
@@ -39,8 +43,13 @@
     "gulp-uglify": "^1.5.3",
     "immutable": "~3.6.2",
     "mocha": "^2.4.5",
+    "rollup": "^2.78.0",
+    "rollup-plugin-dts": "^4.2.2",
     "tape": "^4.4.0",
+    "tslib": "^2.4.0",
     "unit.js": "~1.0.2"
   },
-  "dependencies": {}
+  "dependencies": {
+    "typescript": "^4.7.4"
+  }
 }

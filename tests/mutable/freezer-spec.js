@@ -1,7 +1,7 @@
 // Conditional definition to work also in the browser
 // tests where Freezer is global
 if (typeof Freezer == "undefined") {
-  var Freezer = require("../../freezer.js");
+  var Freezer = require("../../build/freezer.js");
   var assert = require("assert");
 }
 
@@ -9,8 +9,8 @@ var freezer, data;
 
 var example = {
   a: 1,
-  b: {z: 0, y: 1, x: ["A", "B"]},
-  c: [1, 2, {w: 3}],
+  b: { z: 0, y: 1, x: ["A", "B"] },
+  c: [1, 2, { w: 3 }],
   d: null,
 };
 
@@ -36,17 +36,17 @@ describe("Freezer test", function () {
   });
 
   it("Update a value", function () {
-    data.set({a: {b: 1}});
+    data.set({ a: { b: 1 } });
 
     var updated = freezer.getData();
 
     assert.equal(updated, updated.a.__.parents[0]);
-    assert.deepEqual(updated.a, {b: 1});
+    assert.deepEqual(updated.a, { b: 1 });
     assert.notEqual(updated, data);
   });
 
   it("Update a value doesnt modify other elements", function () {
-    data.set({a: 2});
+    data.set({ a: 2 });
 
     var updated = freezer.getData();
 
@@ -56,7 +56,7 @@ describe("Freezer test", function () {
   });
 
   it("Update an array value", function () {
-    data.c.set({0: 2});
+    data.c.set({ 0: 2 });
 
     var updated = freezer.getData();
 
@@ -66,7 +66,7 @@ describe("Freezer test", function () {
   });
 
   it("Update an array value doesnt modify other elements", function () {
-    data.c.set({1: 2});
+    data.c.set({ 1: 2 });
 
     var updated = freezer.getData();
 
@@ -77,7 +77,7 @@ describe("Freezer test", function () {
   });
 
   it("Duplicate node", function () {
-    data.set({d: data.b});
+    data.set({ d: data.b });
     var updated = freezer.getData();
 
     assert.equal(data.b, updated.d);
@@ -85,8 +85,8 @@ describe("Freezer test", function () {
   });
 
   it("A duplicate node should be updated in every part of the tree", function () {
-    data.set({d: data.b});
-    data.b.set({z: 2});
+    data.set({ d: data.b });
+    data.b.set({ z: 2 });
 
     var updated = freezer.getData();
 
@@ -95,7 +95,7 @@ describe("Freezer test", function () {
   });
 
   it("All duplicated node parents should be updated at the same time", function () {
-    data.c[2].set({y: data.b.x});
+    data.c[2].set({ y: data.b.x });
 
     var updated = freezer.get();
 
@@ -117,8 +117,8 @@ describe("Freezer test", function () {
   });
 
   it("Restore a previous state", function () {
-    data.set({e: 9, f: 8});
-    data.b.set({y: 10});
+    data.set({ e: 9, f: 8 });
+    data.b.set({ y: 10 });
 
     var updated = freezer.getData();
 
@@ -139,9 +139,9 @@ describe("Freezer test", function () {
 
   it("Chaining calls", function () {
     var chained = data
-      .set({e: 9})
-      .set({f: 0})
-      .set({a: [2, 3, 4]});
+      .set({ e: 9 })
+      .set({ f: 0 })
+      .set({ a: [2, 3, 4] });
     var updated = freezer.getData();
 
     assert.equal(chained, updated);

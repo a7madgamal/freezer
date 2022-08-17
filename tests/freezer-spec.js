@@ -1,17 +1,16 @@
 // Conditional definition to work also in the browser
 // tests where Freezer is global
 if (typeof Freezer == "undefined") {
-  var Freezer = require("../freezer.js");
+  var Freezer = require("../build/freezer.js");
   var assert = require("assert");
-  var utils = require("../src/utils");
 }
 
 var freezer, data;
 
 var example = {
   a: 1,
-  b: {z: 0, y: 1, x: ["A", "B"]},
-  c: [1, 2, {w: 3}],
+  b: { z: 0, y: 1, x: ["A", "B"] },
+  c: [1, 2, { w: 3 }],
   d: null,
 };
 
@@ -38,7 +37,7 @@ describe("Freezer test", function () {
 
   it("Reset with a previous state", function (done) {
     var counter = 0;
-    data.set({b: 5});
+    data.set({ b: 5 });
     freezer.getEventHub().on("update", function () {
       if (!counter) {
         freezer.set(data);
@@ -47,7 +46,7 @@ describe("Freezer test", function () {
         assert.equal(counter, 1);
         assert.equal(freezer.get(), data);
 
-        freezer.get().b.set({z: 10});
+        freezer.get().b.set({ z: 10 });
         counter++;
       } else {
         assert.equal(freezer.get().b.z, 10);
@@ -55,20 +54,20 @@ describe("Freezer test", function () {
       }
     });
 
-    freezer.get().set({c: 6});
+    freezer.get().set({ c: 6 });
   });
 
   it("Reset with a value", function (done) {
     var counter = 0;
-    data.set({b: 5});
+    data.set({ b: 5 });
     freezer.getEventHub().on("update", function () {
       if (!counter) {
-        freezer.set({z: {a: 1}});
+        freezer.set({ z: { a: 1 } });
         counter++;
       } else if (counter == 1) {
         assert.equal(freezer.get().z.a, 1);
         assert.equal(freezer.get().a, undefined);
-        freezer.get().z.set({b: 2});
+        freezer.get().z.set({ b: 2 });
         counter++;
       } else {
         assert.equal(freezer.get().z.a, 1);
@@ -77,16 +76,16 @@ describe("Freezer test", function () {
       }
     });
 
-    freezer.get().set({c: 6});
+    freezer.get().set({ c: 6 });
   });
 
   it("Update a value", function () {
-    data.set({a: {b: 1}});
+    data.set({ a: { b: 1 } });
 
     var updated = freezer.getData();
 
     assert.equal(updated, updated.a.__.parents[0]);
-    assert.deepEqual(updated.a, {b: 1});
+    assert.deepEqual(updated.a, { b: 1 });
     assert.notEqual(updated, data);
   });
 
@@ -153,7 +152,7 @@ describe("Freezer test", function () {
   });
 
   it("Update a value doesnt modify other elements", function () {
-    data.set({a: 2});
+    data.set({ a: 2 });
 
     var updated = freezer.getData();
 
@@ -163,7 +162,7 @@ describe("Freezer test", function () {
   });
 
   it("Update an array value", function () {
-    data.c.set({0: 2});
+    data.c.set({ 0: 2 });
 
     var updated = freezer.getData();
 
@@ -173,7 +172,7 @@ describe("Freezer test", function () {
   });
 
   it("Update an array value doesnt modify other elements", function () {
-    data.c.set({1: 2});
+    data.c.set({ 1: 2 });
 
     var updated = freezer.getData();
 
@@ -184,7 +183,7 @@ describe("Freezer test", function () {
   });
 
   it("Duplicate node", function () {
-    data.set({d: data.b});
+    data.set({ d: data.b });
     var updated = freezer.getData();
 
     assert.equal(data.b, updated.d);
@@ -192,8 +191,8 @@ describe("Freezer test", function () {
   });
 
   it("A duplicate node should be updated in every part of the tree", function () {
-    data.set({d: data.b});
-    data.b.set({z: 2});
+    data.set({ d: data.b });
+    data.b.set({ z: 2 });
 
     var updated = freezer.getData();
 
@@ -202,7 +201,7 @@ describe("Freezer test", function () {
   });
 
   it("Duplicated nodes should be updated at the same time.", function () {
-    data = data.set({selected: data.b.x});
+    data = data.set({ selected: data.b.x });
 
     data.selected.push(data.c[2]);
 
@@ -211,7 +210,7 @@ describe("Freezer test", function () {
     assert.equal(data.selected, data.b.x);
     assert.equal(data.selected, data.c[2].__.parents[1]);
 
-    data.selected[2].set({u: 4});
+    data.selected[2].set({ u: 4 });
 
     data = freezer.get();
 
@@ -219,10 +218,10 @@ describe("Freezer test", function () {
   });
 
   it("Duplicated nodes should be updated at the same time 2.", function (done) {
-    var freezer = new Freezer({a: [], b: [{z: 1}]});
+    var freezer = new Freezer({ a: [], b: [{ z: 1 }] });
 
     freezer.get().a.push(freezer.get().b[0]);
-    freezer.get().set({c: freezer.get().b[0]});
+    freezer.get().set({ c: freezer.get().b[0] });
 
     var count = 0;
     freezer.getEventHub().on("update", function () {
@@ -237,7 +236,7 @@ describe("Freezer test", function () {
         cCount++;
       });
 
-    var c = freezer.get().c.set({y: 2});
+    var c = freezer.get().c.set({ y: 2 });
 
     var data = freezer.get();
     assert.equal(data.a[0], data.b[0]);
@@ -253,8 +252,8 @@ describe("Freezer test", function () {
   });
 
   it("Restore a previous state", function () {
-    data.set({e: 9, f: 8});
-    data.b.set({y: 10});
+    data.set({ e: 9, f: 8 });
+    data.b.set({ y: 10 });
 
     var updated = freezer.getData();
 
@@ -275,9 +274,9 @@ describe("Freezer test", function () {
 
   it("Chaining calls", function () {
     var chained = data
-      .set({e: 9})
-      .set({f: 0})
-      .set({a: [2, 3, 4]});
+      .set({ e: 9 })
+      .set({ f: 0 })
+      .set({ a: [2, 3, 4] });
     var updated = freezer.getData();
 
     assert.equal(chained, updated);
@@ -288,14 +287,14 @@ describe("Freezer test", function () {
   });
 
   it("Set should work in the current node, not in the nodes == to the curent ", function () {
-    var freezer = new Freezer({a: 0, b: [], c: false, d: null});
+    var freezer = new Freezer({ a: 0, b: [], c: false, d: null });
 
     freezer.get().b.push(1);
-    assert.deepEqual(freezer.get(), {a: 0, b: [1], c: false, d: null});
+    assert.deepEqual(freezer.get(), { a: 0, b: [1], c: false, d: null });
   });
 
   it("Pivot", function () {
-    var update = data.pivot().b.set({u: 10}).b.x.push("C").c[2].remove("w");
+    var update = data.pivot().b.set({ u: 10 }).b.x.push("C").c[2].remove("w");
     assert.equal(update.b.u, 10);
     assert.equal(update.b.x[2], "C");
     assert.equal(update.c[2].w, undefined);
@@ -304,14 +303,14 @@ describe("Freezer test", function () {
   it("Pivot must dissapear on event", function (done) {
     var handler = function handler(newData) {
       freezer.off("update", handler);
-      var newPivot = newData.b.set({u: 20});
+      var newPivot = newData.b.set({ u: 20 });
       assert.equal(newPivot.u, 20);
       assert.equal(newData.__.pivot, 0);
       done();
     };
     freezer.getEventHub().on("update", handler);
 
-    var updated = data.pivot().b.set({u: 10});
+    var updated = data.pivot().b.set({ u: 10 });
     assert.equal(updated.b.u, 10);
   });
 
@@ -327,15 +326,15 @@ describe("Freezer test", function () {
     data.c[2].getListener().on("update", handler(4));
     freezer.getEventHub().on("update", handler(1));
 
-    data = data.pivot().c[2].set({w: 4}).now();
-    data = data.pivot().c[2].set({w: 5}).now();
-    data = data.pivot().c[2].set({w: 6}).now();
+    data = data.pivot().c[2].set({ w: 4 }).now();
+    data = data.pivot().c[2].set({ w: 5 }).now();
+    data = data.pivot().c[2].set({ w: 6 }).now();
 
     assert.equal(triggered, "432143214321");
   });
 
   it("Pivot should not change event order in live mode", function () {
-    var freezer = new Freezer(example, {live: true}),
+    var freezer = new Freezer(example, { live: true }),
       data = freezer.get();
     var triggered = "",
       handler = function (key) {
@@ -348,9 +347,9 @@ describe("Freezer test", function () {
     data.c[2].getListener().on("update", handler(4));
     freezer.getEventHub().on("update", handler(1));
 
-    data = data.pivot().c[2].set({w: 4});
-    data = data.pivot().c[2].set({w: 5});
-    data = data.pivot().c[2].set({w: 6});
+    data = data.pivot().c[2].set({ w: 4 });
+    data = data.pivot().c[2].set({ w: 5 });
+    data = data.pivot().c[2].set({ w: 6 });
 
     assert.equal(triggered, "432143214321");
   });
@@ -376,17 +375,17 @@ describe("Freezer test", function () {
     var MyClass = function () {
         console.log("oh my");
       },
-      freezer = new Freezer({}, {freezeInstances: true});
+      freezer = new Freezer({}, { freezeInstances: true });
     MyClass.prototype.sayHello = function () {
       return "Hello";
     };
 
     var instance = new MyClass();
-    freezer.get().set({instance: instance});
-    freezer.get().instance.set({a: 1});
+    freezer.get().set({ instance: instance });
+    freezer.get().instance.set({ a: 1 });
     assert.equal(freezer.get().instance.a, 1);
     assert.equal(freezer.get().instance.sayHello(), "Hello");
-    freezer.get().instance.set({a: 2});
+    freezer.get().instance.set({ a: 2 });
     assert.equal(freezer.get().instance.a, 2);
     assert.equal(freezer.get().instance.sayHello(), "Hello");
   });
@@ -400,19 +399,19 @@ describe("Freezer test", function () {
     };
     var instance = new MyClass();
 
-    freezer.get().set({instance: instance});
+    freezer.get().set({ instance: instance });
     assert.equal(freezer.get().instance, instance);
     instance.attr = 4;
     assert.equal(freezer.get().instance.attr, 4);
-    freezer.get().set({a: {attr: 1}});
+    freezer.get().set({ a: { attr: 1 } });
     assert.equal(freezer.get().a.attr, 1);
     assert.equal(freezer.get().instance, instance);
   });
 
   it("Deep child should update their parents on state set", function () {
     var d = freezer.get(); // Save state for later
-    freezer.get().set({a: 2});
-    freezer.get().b.set({z: 1});
+    freezer.get().set({ a: 2 });
+    freezer.get().b.set({ z: 1 });
     freezer.set(d);
     freezer.get().b.x.set(0, "z");
 
@@ -429,12 +428,12 @@ describe("Freezer test", function () {
         },
         c: {},
       },
-      {singleParent: true, live: true}
+      { singleParent: true, live: true }
     );
     const oldB = freezer.get().a.b;
     assert.throws(
       function () {
-        freezer.get().c.set({b: oldB});
+        freezer.get().c.set({ b: oldB });
       },
       Error,
       "Node already has a parent"

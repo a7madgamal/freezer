@@ -1,6 +1,3 @@
-"use strict";
-
-//#build
 var global =
   typeof global !== "undefined"
     ? global
@@ -18,20 +15,22 @@ var Utils = {
     return ob;
   },
 
-  createNonEnumerable: function (obj, proto) {
+  createNonEnumerable: function (obj, proto?) {
     var ne = {};
-    for (var key in obj) ne[key] = {value: obj[key]};
+    for (var key in obj) ne[key] = { value: obj[key] };
+
     return Object.create(proto || {}, ne);
   },
 
-  error: function (message) {
+  error: function (message: string) {
     var err = new Error(message);
     if (console) return console.error(err);
     else throw err;
   },
 
-  each: function (o, clbk) {
+  each: function (o, clbk: (child, i: number) => void) {
     var i, l, keys;
+
     if (o && o.constructor === Array) {
       for (i = 0, l = o.length; i < l; i++) clbk(o[i], i);
     } else {
@@ -56,9 +55,8 @@ var Utils = {
    * @param  {Object} attrs Properties to create descriptors
    * @return {Object}       A hash with the descriptors.
    */
-  createNE: function (attrs) {
+  createNE: function (attrs: object): PropertyDescriptorMap {
     var ne = {};
-
     for (var key in attrs) {
       ne[key] = {
         writable: true,
@@ -73,35 +71,37 @@ var Utils = {
 
   // nextTick - by stagas / public domain
   nextTick: (function () {
-    var queue = [],
-      dirty = false,
-      fn,
-      hasPostMessage =
-        !!global.postMessage &&
-        typeof Window !== "undefined" &&
-        global instanceof Window,
-      messageName = "fzr" + Date.now(),
-      trigger = (function () {
-        return hasPostMessage
-          ? function trigger() {
-              global.postMessage(messageName, "*");
+    var queue = [];
+    var dirty = false;
+    var fn;
+    var hasPostMessage =
+      !!global.postMessage &&
+      typeof Window !== "undefined" &&
+      global instanceof Window;
+    var messageName = "fzr" + Date.now();
+    var trigger = (function () {
+      return hasPostMessage
+        ? function trigger() {
+            global.postMessage(messageName, "*");
+          }
+        : function trigger() {
+            setTimeout(function () {
+              processQueue();
+            }, 0);
+          };
+    })();
+
+    var processQueue = (function () {
+      return hasPostMessage
+        ? function processQueue(event?) {
+            if (event.data === messageName) {
+              event.stopPropagation();
+              flushQueue();
             }
-          : function trigger() {
-              setTimeout(function () {
-                processQueue();
-              }, 0);
-            };
-      })(),
-      processQueue = (function () {
-        return hasPostMessage
-          ? function processQueue(event) {
-              if (event.data === messageName) {
-                event.stopPropagation();
-                flushQueue();
-              }
-            }
-          : flushQueue;
-      })();
+          }
+        : flushQueue;
+    })();
+
     function flushQueue() {
       dirty = false;
       while ((fn = queue.shift())) {
@@ -111,7 +111,9 @@ var Utils = {
 
     function nextTick(fn) {
       queue.push(fn);
+
       if (dirty) return;
+
       dirty = true;
       trigger();
     }
@@ -167,7 +169,7 @@ var Utils = {
     );
   },
 
-  warn: function () {
+  warn: function (...arg: any[]) {
     var args;
     if (
       typeof process === "undefined" ||
@@ -182,6 +184,4 @@ var Utils = {
   },
 };
 
-//#build
-
-module.exports = Utils;
+export { Utils };

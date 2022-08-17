@@ -1,37 +1,34 @@
-"use strict";
+import { EmitterEventName } from "./types";
+import { Utils } from "./utils";
 
-var Utils = require("./utils");
-
-//#build
-
-var BEFOREALL = "beforeAll",
-  AFTERALL = "afterAll";
-var specialEvents = [BEFOREALL, AFTERALL];
+const BEFOREALL = "beforeAll";
+const AFTERALL = "afterAll";
+const specialEvents = [BEFOREALL, AFTERALL] as const;
 
 // The prototype methods are stored in a different object
 // and applied as non enumerable properties later
 var emitterProto = {
-  on: function (eventName, listener, once) {
+  on: function (eventName: EmitterEventName, listener, once?: boolean) {
     var listeners = this._events[eventName] || [];
 
-    listeners.push({callback: listener, once: once});
+    listeners.push({ callback: listener, once: once });
     this._events[eventName] = listeners;
 
     return this;
   },
 
-  once: function (eventName, listener) {
+  once: function (eventName: EmitterEventName, listener) {
     return this.on(eventName, listener, true);
   },
 
-  off: function (eventName, listener) {
+  off: function (eventName: EmitterEventName, listener?) {
     if (typeof eventName === "undefined") {
       this._events = {};
     } else if (typeof listener === "undefined") {
       this._events[eventName] = [];
     } else {
-      var listeners = this._events[eventName] || [],
-        i;
+      var listeners = this._events[eventName] || [];
+      var i;
 
       for (i = listeners.length - 1; i >= 0; i--) {
         if (listeners[i].callback === listener) listeners.splice(i, 1);
@@ -41,15 +38,15 @@ var emitterProto = {
     return this;
   },
 
-  emit: function (eventName) {
-    var args = [].slice.call(arguments, 1),
-      listeners = this._events[eventName] || [],
-      onceListeners = [],
-      special = specialEvents.indexOf(eventName) !== -1,
-      i,
-      listener,
-      returnValue,
-      lastValue;
+  emit: function (eventName: EmitterEventName) {
+    var args = [].slice.call(arguments, 1);
+    var listeners = this._events[eventName] || [];
+    var onceListeners = [];
+    var special = specialEvents.indexOf(eventName as any) !== -1;
+    var i;
+    var listener;
+    var returnValue;
+    var lastValue;
 
     special || this.emit.apply(this, [BEFOREALL, eventName].concat(args));
 
@@ -87,12 +84,12 @@ var emitterProto = {
     );
     return this.emit.apply(this, arguments);
   },
-};
+} as const;
 
 // Methods are not enumerable so, when the stores are
 // extended with the emitter, they can be iterated as
 // hashmaps
-var Emitter = Utils.createNonEnumerable(emitterProto);
-//#build
+// todo: is this accurate?
+var Emitter = Utils.createNonEnumerable(emitterProto) as typeof emitterProto;
 
-module.exports = Emitter;
+export { Emitter };

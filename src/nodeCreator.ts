@@ -1,9 +1,7 @@
-"use strict";
+import { NodeCreator } from "./types";
+import { Utils } from "./utils";
 
-var Utils = require("./utils.js");
-
-//#build
-var nodeCreator = {
+var nodeCreator: NodeCreator = {
   init: function (Frozen) {
     var commonMethods = {
       set: function (attr, value) {
@@ -22,6 +20,7 @@ var nodeCreator = {
 
         if (!update) {
           for (var key in attrs) {
+            // @ts-expect-error whatever
             if (isArray && parseInt(key) != key) {
               Utils.warn(0, msg + key);
               return Utils.findPivot(this) || this;
@@ -181,10 +180,10 @@ var nodeCreator = {
 
     var createArray = (function () {
       // fast version
-      if ([].__proto__)
+      if (([] as any).__proto__)
         return function (length) {
           var arr = new Array(length);
-          arr.__proto__ = FrozenArray;
+          (arr as any).__proto__ = FrozenArray;
           return arr;
         };
 
@@ -216,6 +215,5 @@ var nodeCreator = {
     };
   },
 };
-//#build
 
-module.exports = nodeCreator;
+export { nodeCreator };

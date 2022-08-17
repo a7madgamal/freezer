@@ -1,7 +1,7 @@
 // Conditional definition to work also in the browser
 // tests where Freezer is global
 if (typeof Freezer == "undefined") {
-  var Freezer = require("../freezer.js");
+  var Freezer = require("../build/freezer.js");
   var assert = require("assert");
 }
 
@@ -9,8 +9,8 @@ var freezer, data;
 
 var example = {
   a: 1,
-  b: {z: 0, y: 1, x: ["A", "B"]},
-  c: [1, 2, {w: 3}],
+  b: { z: 0, y: 1, x: ["A", "B"] },
+  c: [1, 2, { w: 3 }],
   d: null,
 };
 
@@ -65,7 +65,7 @@ describe("Freezer transact test", function () {
   it("Deep transaction", function () {
     data.c.transact();
 
-    var updatedC2 = data.c[2].set({v: 4}).remove("w");
+    var updatedC2 = data.c[2].set({ v: 4 }).remove("w");
     assert.equal(freezer.getData().c, data.c);
     assert.notEqual(data.c[2], updatedC2);
 
@@ -74,7 +74,7 @@ describe("Freezer transact test", function () {
     assert.equal(updated[2], updatedC2);
     assert.equal(freezer.getData().c, updated);
 
-    updated = updated[2].set({u: 5});
+    updated = updated[2].set({ u: 5 });
 
     assert.equal(freezer.getData().c[2], updated);
   });
@@ -95,7 +95,7 @@ describe("Freezer transact test", function () {
 
   it("Deep transaction on a repeated node 1", function () {
     // Operation on a child of a transacted node
-    var updated = data.set({e: data.b.x, f: data.b.x});
+    var updated = data.set({ e: data.b.x, f: data.b.x });
 
     var trans = updated.b.transact();
 
