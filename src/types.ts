@@ -1,4 +1,29 @@
 import { Frozen } from "./frozen";
+export interface CommonMethods {
+  set: (attr, value) => unknown;
+  reset: (attrs) => unknown;
+  getListener: () => unknown;
+  toJS: () => unknown;
+  transact: () => unknown;
+  run: () => unknown;
+  now: () => unknown;
+  pivot: () => unknown;
+}
+
+export interface ArrayMethods {
+  push: (el) => unknown;
+  append: (el, name: string) => unknown;
+  pop: () => unknown;
+  unshift: (el) => unknown;
+  prepend: (els) => unknown;
+  shift: () => unknown;
+  splice: (index, toRemove, toAdd) => unknown;
+  sort: () => unknown;
+}
+
+export interface ObjMethods {
+  remove: (keys) => unknown;
+}
 
 export type FreezerOpts = {
   live: boolean;
@@ -6,18 +31,44 @@ export type FreezerOpts = {
   singleParent: boolean;
   mutable: boolean;
 };
-export type EventName = keyof typeof Frozen | "now";
+// function names on freez
+export type FrozenEventName =
+  | "freeze"
+  | "merge"
+  | "replace"
+  | "remove"
+  | "splice"
+  | "transact"
+  | "run"
+  | "pivot"
+  | "unpivot"
+  | "refresh"
+  | "fixChildren"
+  | "copyMeta"
+  | "refreshParents"
+  | "removeParent"
+  | "addParent"
+  | "emit"
+  | "createListener"
+  | "now";
 export type EmitterEventName = string | "beforeAll" | "afterAll";
 
 export type Store = {
-  notify: (eventName: EventName, node, options, name) => void;
+  notify: (
+    eventName: FrozenEventName,
+    node,
+    options?,
+    name?: "object.set" | "object.remove"
+  ) => void;
   freezeFn: (obj?) => void;
   live: boolean;
   freezeInstances: boolean;
   singleParent: boolean;
 };
 
-export type FreezerNode = {
+interface FrozenMethods extends CommonMethods, ObjMethods, ArrayMethods {}
+
+export interface FreezerNode extends FrozenMethods {
   __: {
     pivot: number;
     listener?: {
@@ -28,16 +79,12 @@ export type FreezerNode = {
     updateRoot: (oldChild: unknown, newChild: unknown) => unknown;
     parents: unknown[];
     trans: unknown[];
-    store: {
-      freezeInstances: unknown;
-      freezeFn: (freez: unknown) => unknown;
-      live: unknown;
-      singleParent: unknown;
-    };
+    store: Store;
   };
-};
+}
 
 export type NodeCreator = {
   init: (frozen: typeof Frozen) => void;
-  clone?: (node: FreezerNode) => {};
+  // todo: fix this to return based on node type
+  clone?: (node) => FreezerNode;
 };

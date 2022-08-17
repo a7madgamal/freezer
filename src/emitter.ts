@@ -5,10 +5,37 @@ const BEFOREALL = "beforeAll";
 const AFTERALL = "afterAll";
 const specialEvents = [BEFOREALL, AFTERALL] as const;
 
+type CallBack = () => unknown;
+type Listener = { callback?: CallBack; once: boolean };
+type EmitterProto = {
+  _events?: { [eventname: string]: Listener[] };
+
+  on: (
+    this: EmitterProto,
+    eventName: EmitterEventName,
+    listener: CallBack,
+    once?: boolean
+  ) => EmitterProto;
+
+  once: (
+    this: EmitterProto,
+    eventName: EmitterEventName,
+    listener: CallBack
+  ) => EmitterProto;
+
+  off: (
+    this: EmitterProto,
+    eventName: EmitterEventName,
+    listener: CallBack
+  ) => EmitterProto;
+
+  emit: (this: EmitterProto, eventName: EmitterEventName) => EmitterProto;
+  trigger: (this: EmitterProto) => EmitterProto;
+};
 // The prototype methods are stored in a different object
 // and applied as non enumerable properties later
-var emitterProto = {
-  on: function (eventName: EmitterEventName, listener, once?: boolean) {
+var emitterProto: EmitterProto = {
+  on: function (eventName, listener, once?: boolean) {
     var listeners = this._events[eventName] || [];
 
     listeners.push({ callback: listener, once: once });
@@ -17,18 +44,18 @@ var emitterProto = {
     return this;
   },
 
-  once: function (eventName: EmitterEventName, listener) {
+  once: function (eventName, listener) {
     return this.on(eventName, listener, true);
   },
 
-  off: function (eventName: EmitterEventName, listener?) {
+  off: function (eventName, listener?) {
     if (typeof eventName === "undefined") {
       this._events = {};
     } else if (typeof listener === "undefined") {
       this._events[eventName] = [];
     } else {
       var listeners = this._events[eventName] || [];
-      var i;
+      var i: number;
 
       for (i = listeners.length - 1; i >= 0; i--) {
         if (listeners[i].callback === listener) listeners.splice(i, 1);
@@ -39,12 +66,12 @@ var emitterProto = {
   },
 
   emit: function (eventName: EmitterEventName) {
-    var args = [].slice.call(arguments, 1);
+    var args: any[] = [].slice.call(arguments, 1);
     var listeners = this._events[eventName] || [];
     var onceListeners = [];
     var special = specialEvents.indexOf(eventName as any) !== -1;
-    var i;
-    var listener;
+    var i: number;
+    var listener: Listener;
     var returnValue;
     var lastValue;
 
@@ -90,6 +117,6 @@ var emitterProto = {
 // extended with the emitter, they can be iterated as
 // hashmaps
 // todo: is this accurate?
-var Emitter = Utils.createNonEnumerable(emitterProto) as typeof emitterProto;
+var Emitter = Utils.createNonEnumerable(emitterProto) as EmitterProto;
 
 export { Emitter };

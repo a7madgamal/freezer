@@ -1,8 +1,29 @@
 import { Utils } from "./utils";
 import { Frozen } from "./frozen";
-import { EventName, FreezerOpts, Store } from "./types";
+import { FreezerOpts, Store, FreezerNode } from "./types";
 
-var Freezer = function (initialValue, options: FreezerOpts) {
+type FreezerMethods = {
+  emit: () => void;
+  get: () => void;
+  getData: () => void;
+  getEventHub: () => void;
+  off: () => void;
+  on: () => void;
+  once: () => void;
+  set: () => void;
+  setData: () => void;
+  trigger: () => void;
+};
+
+type FreezerConstructor = {
+  new (initialValue, options: FreezerOpts): FreezerMethods;
+};
+
+var Freezer = function (
+  this: FreezerMethods,
+  initialValue,
+  options: FreezerOpts
+) {
   var me = this;
   var ops = options || ({} as FreezerOpts);
   var store: Partial<Store> = {
@@ -15,9 +36,9 @@ var Freezer = function (initialValue, options: FreezerOpts) {
   var pivotTriggers = [];
   var pivotTicking = 0;
 
-  var triggerNow = function (node) {
+  var triggerNow = function (node: FreezerNode) {
     var _ = node.__;
-    var i;
+    var i: number;
 
     if (_.listener) {
       var prevState = _.listener.prevState || node;
@@ -32,6 +53,7 @@ var Freezer = function (initialValue, options: FreezerOpts) {
 
   var addToPivotTriggers = function (node) {
     pivotTriggers.push(node);
+
     if (!pivotTicking) {
       pivotTicking = 1;
       Utils.nextTick(function () {
@@ -43,7 +65,7 @@ var Freezer = function (initialValue, options: FreezerOpts) {
 
   // Last call to display info about orphan calls
   var lastCall;
-  store.notify = function notify(eventName: EventName, node, options, name) {
+  store.notify = function notify(eventName, node, options, name) {
     if (name) {
       if (lastCall && !lastCall.onStore) {
         detachedWarn(lastCall);
@@ -84,7 +106,7 @@ var Freezer = function (initialValue, options: FreezerOpts) {
         };
 
   // Create the frozen object
-  frozen = Frozen.freeze(initialValue, store);
+  frozen = Frozen.freeze(initialValue as unknown as FreezerNode, store);
   frozen.__.updateRoot = function (prevNode, updated) {
     if (prevNode === frozen) {
       frozen = updated;
@@ -101,14 +123,18 @@ var Freezer = function (initialValue, options: FreezerOpts) {
   };
 
   // Listen to its changes immediately
-  var listener = frozen.getListener(),
-    hub = {};
-  Utils.each(["on", "off", "once", "emit", "trigger"], function (method) {
-    var attrs = {};
-    attrs[method] = listener[method].bind(listener);
-    Utils.addNE(me, attrs);
-    Utils.addNE(hub, attrs);
-  });
+  var listener = frozen.getListener();
+  var hub = {};
+
+  Utils.each(
+    ["on", "off", "once", "emit", "trigger"],
+    function (method: "on" | "off" | "once" | "emit" | "trigger") {
+      var attrs = {};
+      attrs[method] = listener[method].bind(listener);
+      Utils.addNE(me, attrs);
+      Utils.addNE(hub, attrs);
+    }
+  );
 
   Utils.addNE(this, {
     get: function () {
@@ -134,4 +160,4 @@ function detachedWarn(lastCall) {
   );
 }
 
-export default Freezer;
+export default Freezer as unknown as FreezerConstructor;

@@ -1,3 +1,5 @@
+import { FreezerNode } from "./types";
+
 var global =
   typeof global !== "undefined"
     ? global
@@ -8,14 +10,14 @@ var global =
     : {};
 
 var Utils = {
-  extend: function (ob, props) {
+  extend: function (ob: object, props: object) {
     for (var p in props) {
       ob[p] = props[p];
     }
     return ob;
   },
 
-  createNonEnumerable: function (obj, proto?) {
+  createNonEnumerable: function (obj: object, proto?: object) {
     var ne = {};
     for (var key in obj) ne[key] = { value: obj[key] };
 
@@ -28,8 +30,10 @@ var Utils = {
     else throw err;
   },
 
-  each: function (o, clbk: (child, i: number) => void) {
-    var i, l, keys;
+  each: function (o, clbk: (child, i: string | number) => void) {
+    var i: number;
+    var l: number;
+    var keys: string[];
 
     if (o && o.constructor === Array) {
       for (i = 0, l = o.length; i < l; i++) clbk(o[i], i);
@@ -71,10 +75,10 @@ var Utils = {
 
   // nextTick - by stagas / public domain
   nextTick: (function () {
-    var queue = [];
+    var queue: Array<() => void> = [];
     var dirty = false;
-    var fn;
-    var hasPostMessage =
+    var fn: () => void;
+    var hasPostMessage: boolean =
       !!global.postMessage &&
       typeof Window !== "undefined" &&
       global instanceof Window;
@@ -109,7 +113,7 @@ var Utils = {
       }
     }
 
-    function nextTick(fn) {
+    function nextTick(fn: () => void) {
       queue.push(fn);
 
       if (dirty) return;
@@ -127,15 +131,15 @@ var Utils = {
     return nextTick;
   })(),
 
-  findPivot: function (node) {
+  findPivot: function (node: FreezerNode) {
     if (!node || !node.__) return;
 
     if (node.__.pivot) return node;
 
-    var found = 0,
-      parents = node.__.parents,
-      i = 0,
-      parent;
+    var found = 0;
+    var parents = node.__.parents;
+    var i = 0;
+    var parent;
 
     // Look up for the pivot in the parents
     while (!found && i < parents.length) {
@@ -158,7 +162,7 @@ var Utils = {
     return found;
   },
 
-  isLeaf: function (node, freezeInstances) {
+  isLeaf: function (node: FreezerNode, freezeInstances) {
     var cons;
     return (
       !node ||

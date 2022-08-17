@@ -1,12 +1,12 @@
 import { Utils } from "./utils";
 import { nodeCreator } from "./nodeCreator";
 import { Emitter } from "./emitter";
-import { FreezerNode } from "./types";
+import { FreezerNode, Store } from "./types";
 
 var Frozen = {
-  freeze: function (node: FreezerNode, store) {
+  freeze: function (node: FreezerNode, store: Partial<Store>): FreezerNode {
     if (node && node.__) {
-      return node;
+      return node as unknown as FreezerNode;
     }
 
     var me = this;
@@ -38,7 +38,7 @@ var Frozen = {
     return frozen;
   },
 
-  merge: function (node: FreezerNode, attrs) {
+  merge: function (node: FreezerNode, attrs: object) {
     var _ = node.__,
       trans = _.trans,
       // Clone the attrs to not modify the argument
@@ -48,12 +48,12 @@ var Frozen = {
       return node;
     }
 
-    var me = this,
-      frozen = this.copyMeta(node),
-      store = _.store,
-      val,
-      key,
-      isFrozen;
+    var me = this;
+    var frozen = this.copyMeta(node);
+    var store = _.store;
+    var val;
+    var key;
+    var isFrozen;
 
     Utils.each(node, function (child, key) {
       isFrozen = child && child.__;
@@ -96,7 +96,7 @@ var Frozen = {
     return frozen;
   },
 
-  replace: function (node: FreezerNode, replacement) {
+  replace: function (node: FreezerNode, replacement: FreezerNode) {
     var me = this;
     var _ = node.__;
     var frozen = replacement;
@@ -118,7 +118,7 @@ var Frozen = {
     return frozen;
   },
 
-  remove: function (node: FreezerNode, attrs) {
+  remove: function (node: FreezerNode, attrs: (string | number)[]) {
     var trans = node.__.trans;
     if (trans) {
       for (var l = attrs.length - 1; l >= 0; l--) delete trans[attrs[l]];
@@ -372,7 +372,12 @@ var Frozen = {
     }
   },
 
-  emit: function (node: FreezerNode, eventName, param?, now?) {
+  emit: function (
+    node: FreezerNode,
+    eventName: "update",
+    param?,
+    now?: boolean
+  ) {
     var listener = node.__.listener;
     if (!listener) return;
 
@@ -421,7 +426,7 @@ var Frozen = {
 
     return l;
   },
-};
+} as const;
 
 nodeCreator.init(Frozen);
 
